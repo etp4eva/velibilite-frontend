@@ -1,64 +1,32 @@
 import * as _ from 'lodash';
 import "leaflet/dist/leaflet.css";
-import * as L from "leaflet";
+import { TileLayer } from "react-leaflet";
 import "./styles.css";
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import ReactDOMServer from "react-dom/server";
+import React from "react";
+import {createRoot} from "react-dom/client";
+import FeaturePopup from './components/FeaturePopup'
+import { MapContainer } from 'react-leaflet';
+import StationsLayer from './components/StationsLayer';
 
-type FeaturePopupProps = {
-    feature: GeoJSON.Feature,
-}
+const root = createRoot(document.getElementById('map'));
+root.render(
+        <MapContainer 
+            center={[48.8570, 2.3502]}
+            zoom={12}     
+            preferCanvas={true}   
+            style={{height:'100%'}}
+        >
+            <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <StationsLayer />
 
-const FeaturePopup = ({feature}: FeaturePopupProps) => {
-    return (
-      <div style={{ fontSize: "12px", color: "black" }}>
-        <p><b>Station ID:</b> {feature.properties.station_id}</p>
-        <p>⬅️ Monday ➡️</p>
-        <table>
-        <tr>
-            {
-                Object.keys(feature.properties.values[0]).map(hour =>
-                    <td>{ feature.properties.values[0][hour].green_avg }</td>
-                )
-            }
-        </tr>
-        </table>
-      </div>
-    );
-  };
+        </MapContainer>
+);
 
-var mapOptions: L.MapOptions = {
-    center: [48.8570, 2.3502],
-    zoom: 12,
-    preferCanvas: true,
-}
+/*
 
-var map = L.map("map", mapOptions)
-
-var baselayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }
-)
-
-baselayer.addTo(map);
-
-var geojsonMarkerOptions = {
-    radius: 8,
-    fillColor: "#ff7800",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-};
-
-let onEachFeature = (feature: GeoJSON.Feature, layer: L.Layer) => {
-    layer.bindPopup(
-        ReactDOMServer.renderToString(<FeaturePopup feature={feature}/>),
-        { maxWidth: 1000 }
-    )
-}
 
 document.addEventListener("DOMContentLoaded", async () => {
     const response = await window.fetch('https://ericwebsite.info/velib/data/stations.geojson');
@@ -72,3 +40,4 @@ document.addEventListener("DOMContentLoaded", async () => {
         }).addTo(map)
     }
 });
+*/
