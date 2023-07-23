@@ -1,4 +1,36 @@
 import React, { Component, useState } from "react";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
+
+const options = {
+    responsive: false,
+    scales: {
+        x: {
+            stacked: true,
+        },
+        y: {
+            stacked: true,
+        },
+    },
+
+};
 
 type FeaturePopupProps = {
     feature: GeoJSON.Feature,
@@ -9,58 +41,58 @@ type TimeFrequencyChartProps = {
     day_of_week: number,
 }
 
+type ValuesType = {
+    g: number,
+    b: number,
+}
+
 const TimeFrequencyChart = ({feature, day_of_week}: TimeFrequencyChartProps) => {
-    if (day_of_week <= 6)
-    {
-        return (
-            <table style={{ textAlign: 'center' }}>
-            <tr>
-                {
-                    Object.keys(feature.properties.values[day_of_week]).map(hour =>
-                        <td>{ feature.properties.values[day_of_week][hour].green_avg }</td>
-                    )
-                }
-            </tr>
-            <tr>
-                {
-                    Array.from({length:24},(v,k)=>k+1).map(hour =>
-                        <td>{ hour }</td>
-                    )
-                }
-            </tr>
-            </table>
+    let green = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    let blue = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+
+    if (day_of_week <= 6) {
+        green = Object.values(feature.properties.values[day_of_week]).map((hour: ValuesType) =>
+            { 
+                return hour.g
+            }
+        )
+
+        blue = Object.values(feature.properties.values[day_of_week]).map((hour: ValuesType) =>
+            { 
+                return hour.b
+            }
         )
     } else {
-        let results = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
         for (let hr = 0; hr <= 23; hr++)
         {
             for (let dow = 0; dow <= 6; dow++)
             {
-                results[hr] = results[hr] + feature.properties.values[dow][hr].green_avg
+                green[hr] = green[hr] + feature.properties.values[dow][hr].g
+                blue[hr] = blue[hr] + feature.properties.values[dow][hr].b
             }
 
-            results[hr] = results[hr] / 7;
+            green[hr] = green[hr] / 7;
+            blue[hr] = blue[hr] / 7;
         }
-        
-        return (
-            <table style={{ textAlign: 'center' }}>
-            <tr>
-                {
-                    results.map(val =>
-                        <td>{ val }</td>
-                    )
-                }
-            </tr>
-            <tr>
-                {
-                    Array.from({length:24},(v,k)=>k+1).map(hour =>
-                        <td>{ hour }</td>
-                    )
-                }
-            </tr>
-            </table>
-        )
     }
+
+    const data = {
+        labels: Array.from({length:24},(v,k)=>k+1),
+        datasets: [
+            {
+                label: 'Green bikes',
+                data: green,
+                backgroundColor: 'rgba(0, 255, 0, 0.5)',
+            },
+            {
+                label: 'Blue bikes',
+                data: blue,
+                backgroundColor: 'rgba(0, 0, 255, 0.5)',
+            },
+        ],
+    }
+    
+    return <Bar options={options} data={data} />
 }
 
 let days_of_week = [

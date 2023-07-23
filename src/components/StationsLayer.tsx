@@ -54,7 +54,7 @@ const StationsLayer = () => {
                         opacity={1}
                         fillOpacity={0.8}               
                     >
-                        <Popup>
+                        <Popup maxWidth={1000}>
                             <FeaturePopup feature={feature}/>
                         </Popup>
                     </CircleMarker>
