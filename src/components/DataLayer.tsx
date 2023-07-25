@@ -6,6 +6,7 @@ import { GeoJSON } from "geojson";
 
 type DataLayerProps = {
     selectedLayer: string,
+    // TODO: day of week and hour
 }
 
 const base_url = 'https://ericwebsite.info/velib/data/'
@@ -17,18 +18,46 @@ const urls: {[name: string]: string} = {
     'arronds': base_url + 'arrond.geojson',
 }
 
-const DataLayer = (props: DataLayerProps) => {
-    const layers = {
-        stations: null as GeoJSON.FeatureCollection<GeoJSON.Point>,
-        communes: null as GeoJSON.FeatureCollection<GeoJSON.Polygon>,
-        nhoods: null as GeoJSON.FeatureCollection<GeoJSON.Polygon>,
-        arronds: null as GeoJSON.FeatureCollection<GeoJSON.Polygon>,
-    }
+const colourBreaks = [
+    '#f6eff7',
+    '#bdc9e1',
+    '#67a9cf',
+    '#1c9099',
+    '#016c59'
+]
 
+const day_of_week = 3;
+const hour_of_day = 12;
+
+let breaks: {[name: string]: string} = {}
+
+const DataLayer = (props: DataLayerProps) => {
     const [data, setData] = useState<
         GeoJSON.FeatureCollection<GeoJSON.Point> | 
         GeoJSON.FeatureCollection<GeoJSON.Polygon>
     >();
+
+    const calculateBreaks = (data: GeoJSON.FeatureCollection) => {        
+        let max = Number.NEGATIVE_INFINITY
+        let min = Number.POSITIVE_INFINITY
+        
+        data.features.forEach((feature) => {
+            // TODO: Less naive break algorithm
+            // TODO: get day of week and hour from props
+            const vals = feature.properties.values[day_of_week][hour_of_day]
+            const val = vals.g + vals.b
+            if (val > max) max = val;
+            if (val < min) min = val;
+        })
+
+        const step = (max - min) / 5;
+        breaks = {}
+
+        for (let i = 0; i < 5; i++)
+        {
+            breaks[(min + (i * step)).toString()] = colourBreaks[i];
+        }
+    }
     
     const fetchLayerData = async (layer: string) => {
         console.log(urls[layer])
@@ -41,7 +70,9 @@ const DataLayer = (props: DataLayerProps) => {
 
         if (response.ok)
         {
+            calculateBreaks(result);
             setData(result);
+            console.log(breaks)
         } else {
             console.log(`Fetching data failed: ${layer}`)
         }
@@ -52,8 +83,7 @@ const DataLayer = (props: DataLayerProps) => {
     }, [props.selectedLayer]);
 
     // https://stackoverflow.com/questions/67460092/need-proper-way-to-render-jsx-component-inside-leaflet-popup-when-using-geojson
-    if
-     (data) {
+    if (data) {
         return (
             <>
             {data.features.map((feature, index) => {
@@ -79,12 +109,29 @@ const DataLayer = (props: DataLayerProps) => {
                     feature.geometry.coordinates[0].forEach((value) => {
                         geom[0].push([value[1], value[0]])
                     })
+
+                    // TODO: get day of week and hour from props                    
+                    const vals = feature.properties.values[day_of_week][hour_of_day]
+                    const val = vals.g + vals.b
+
+                    let fillColor = colourBreaks[0]
+
+                    Object.keys(breaks).every((key) => {
+                        if (Number(val) <= Number(key))
+                        {
+
+                            fillColor = breaks[key]
+                            return false;
+                        }
+
+                        return true;
+                    })
                     
                     return (
                         <Polygon
                             key={index}
                             positions={geom}
-                            fillColor="#ff7800"
+                            fillColor={fillColor}
                             color="#000"
                             weight={1}
                             opacity={1}
