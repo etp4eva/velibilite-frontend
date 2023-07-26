@@ -10,6 +10,8 @@ import Header from './components/Header';
 
 const Content = () => {
     const [ selectedLayer, setSelectedLayer ] = useState('stations');
+    const [ selectedDay, setSelectedDay ] = useState(0);
+    const [ selectedHour, setSelectedHour ] = useState(0);
     
     return (
         <div
@@ -21,6 +23,8 @@ const Content = () => {
             <Header 
                 selectedLayer={selectedLayer} 
                 setSelectedLayer={setSelectedLayer} 
+                setSelectedDay={setSelectedDay}
+                setSelectedHour={setSelectedHour}
             />
             <MapContainer 
                 center={[48.8570, 2.3502]}
@@ -36,7 +40,11 @@ const Content = () => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <DataLayer selectedLayer={selectedLayer} />
+                <DataLayer 
+                    selectedLayer={selectedLayer} 
+                    dayOfWeek={selectedDay}
+                    hourOfDay={selectedHour}
+                />
 
             </MapContainer>
         </div>

@@ -3,6 +3,8 @@ import React from 'react'
 type HeaderProps = {
     selectedLayer: string,
     setSelectedLayer: React.Dispatch<React.SetStateAction<string>>,
+    setSelectedDay: React.Dispatch<React.SetStateAction<number>>,
+    setSelectedHour: React.Dispatch<React.SetStateAction<number>>,
 }
 
 const Header = (props: HeaderProps) => {
@@ -80,15 +82,19 @@ const Header = (props: HeaderProps) => {
                     style={{
                         visibility: props.selectedLayer != 'stations' ? 'visible' : 'hidden'
                     }}
+                    onChange={ (event) => {
+                        const value = event.currentTarget.value;
+                        props.setSelectedDay(Number(value));
+                    }}
                 >
-                    <option value="all">All days</option>
-                    <option value="mon">Monday</option>
-                    <option value="tue">Tuesday</option>
-                    <option value="wed">Wednesday</option>
-                    <option value="thu">Thursday</option>
-                    <option value="fri">Friday</option>
-                    <option value="sat">Saturday</option>
-                    <option value="sun">Sunday</option>
+                    <option value="7">All days</option>
+                    <option value="0">Monday</option>
+                    <option value="1">Tuesday</option>
+                    <option value="2">Wednesday</option>
+                    <option value="3">Thursday</option>
+                    <option value="4">Friday</option>
+                    <option value="5">Saturday</option>
+                    <option value="6">Sunday</option>
                 </select>
             </div>
             <div
@@ -102,6 +108,10 @@ const Header = (props: HeaderProps) => {
                     max='23'
                     style={{
                         visibility: props.selectedLayer != 'stations' ? 'visible' : 'hidden'
+                    }}
+                    onChange={ (event) => {
+                        const value = event.currentTarget.value;
+                        props.setSelectedHour(Number(value));
                     }}
                 />
             </div>

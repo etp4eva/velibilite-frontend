@@ -6,7 +6,8 @@ import { GeoJSON } from "geojson";
 
 type DataLayerProps = {
     selectedLayer: string,
-    // TODO: day of week and hour
+    dayOfWeek: number,
+    hourOfDay: number,
 }
 
 const base_url = 'https://ericwebsite.info/velib/data/'
@@ -44,7 +45,7 @@ const DataLayer = (props: DataLayerProps) => {
         data.features.forEach((feature) => {
             // TODO: Less naive break algorithm
             // TODO: get day of week and hour from props
-            const vals = feature.properties.values[day_of_week][hour_of_day]
+            const vals = feature.properties.values[props.dayOfWeek][props.hourOfDay]
             const val = vals.g + vals.b
             if (val > max) max = val;
             if (val < min) min = val;
@@ -70,9 +71,7 @@ const DataLayer = (props: DataLayerProps) => {
 
         if (response.ok)
         {
-            calculateBreaks(result);
             setData(result);
-            console.log(breaks)
         } else {
             console.log(`Fetching data failed: ${layer}`)
         }
@@ -82,8 +81,15 @@ const DataLayer = (props: DataLayerProps) => {
         fetchLayerData(props.selectedLayer);
     }, [props.selectedLayer]);
 
+    useEffect(() => {
+        if (data)
+            calculateBreaks(data);
+    }, [props.dayOfWeek, props.hourOfDay])
+
     // https://stackoverflow.com/questions/67460092/need-proper-way-to-render-jsx-component-inside-leaflet-popup-when-using-geojson
     if (data) {
+        calculateBreaks(data);
+
         return (
             <>
             {data.features.map((feature, index) => {
@@ -111,7 +117,7 @@ const DataLayer = (props: DataLayerProps) => {
                     })
 
                     // TODO: get day of week and hour from props                    
-                    const vals = feature.properties.values[day_of_week][hour_of_day]
+                    const vals = feature.properties.values[props.dayOfWeek][props.hourOfDay]
                     const val = vals.g + vals.b
 
                     let fillColor = colourBreaks[0]
@@ -119,7 +125,6 @@ const DataLayer = (props: DataLayerProps) => {
                     Object.keys(breaks).every((key) => {
                         if (Number(val) <= Number(key))
                         {
-
                             fillColor = breaks[key]
                             return false;
                         }
