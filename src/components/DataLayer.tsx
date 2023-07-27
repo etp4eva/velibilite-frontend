@@ -27,9 +27,6 @@ const colourBreaks = [
     '#016c59'
 ]
 
-const day_of_week = 3;
-const hour_of_day = 12;
-
 let breaks: {[name: string]: string} = {}
 
 const DataLayer = (props: DataLayerProps) => {
@@ -38,7 +35,10 @@ const DataLayer = (props: DataLayerProps) => {
         GeoJSON.FeatureCollection<GeoJSON.Polygon>
     >();
 
-    const calculateBreaks = (data: GeoJSON.FeatureCollection) => {        
+    const [breaksNeedRefresh, setBreaksNeedRefresh] = useState(false)
+
+    const calculateBreaks = (data: GeoJSON.FeatureCollection) => {  
+        breaks = {}      
         let max = Number.NEGATIVE_INFINITY
         let min = Number.POSITIVE_INFINITY
         
@@ -46,22 +46,23 @@ const DataLayer = (props: DataLayerProps) => {
             // TODO: Less naive break algorithm
             // TODO: get day of week and hour from props
             const vals = feature.properties.values[props.dayOfWeek][props.hourOfDay]
-            const val = vals.g + vals.b
+            const val = (vals.g + vals.b) / feature.properties.capacity;
+
             if (val > max) max = val;
             if (val < min) min = val;
         })
 
         const step = (max - min) / 5;
-        breaks = {}
 
-        for (let i = 0; i < 5; i++)
+        for (let i = 0; i < 6; i++)
         {
             breaks[(min + (i * step)).toString()] = colourBreaks[i];
         }
+
+        setBreaksNeedRefresh(false)
     }
     
     const fetchLayerData = async (layer: string) => {
-        console.log(urls[layer])
         const response = await (
             await fetch(
                 urls[layer]
@@ -72,6 +73,7 @@ const DataLayer = (props: DataLayerProps) => {
         if (response.ok)
         {
             setData(result);
+            setBreaksNeedRefresh(true);
         } else {
             console.log(`Fetching data failed: ${layer}`)
         }
@@ -82,14 +84,21 @@ const DataLayer = (props: DataLayerProps) => {
     }, [props.selectedLayer]);
 
     useEffect(() => {
-        if (data)
-            calculateBreaks(data);
+        if (data) {            
+            setBreaksNeedRefresh(true);
+        }
     }, [props.dayOfWeek, props.hourOfDay])
 
-    // https://stackoverflow.com/questions/67460092/need-proper-way-to-render-jsx-component-inside-leaflet-popup-when-using-geojson
-    if (data) {
-        calculateBreaks(data);
+    useEffect(() => {
+        if (data && breaksNeedRefresh) {
+            calculateBreaks(data)
+        }
+    }, [breaksNeedRefresh])
 
+    // https://stackoverflow.com/questions/67460092/need-proper-way-to-render-jsx-component-inside-leaflet-popup-when-using-geojson
+    
+    if (data && !breaksNeedRefresh) {
+        
         return (
             <>
             {data.features.map((feature, index) => {
@@ -115,18 +124,25 @@ const DataLayer = (props: DataLayerProps) => {
                     feature.geometry.coordinates[0].forEach((value) => {
                         geom[0].push([value[1], value[0]])
                     })
-
-                    // TODO: get day of week and hour from props                    
+                    
                     const vals = feature.properties.values[props.dayOfWeek][props.hourOfDay]
                     const val = vals.g + vals.b
+                    const capacity = feature.properties.capacity;
+
+                    const pctAvailable = Number(val)/ Number(capacity);
 
                     let fillColor = colourBreaks[0]
 
-                    Object.keys(breaks).every((key) => {
-                        if (Number(val) <= Number(key))
+                    Object.keys(breaks).every((key, idx) => {
+                        
+                        if (pctAvailable <= Number(key))
                         {
                             fillColor = breaks[key]
                             return false;
+                        } else if (idx == Object.keys(breaks).length - 1 && pctAvailable > Number(key))
+                        {
+                            console.log(pctAvailable)
+                            console.log(Number(key))
                         }
 
                         return true;
