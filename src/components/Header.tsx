@@ -2,6 +2,7 @@ import React from 'react'
 
 type HeaderProps = {
     selectedLayer: string,
+    selectedHour: number,
     setSelectedLayer: React.Dispatch<React.SetStateAction<string>>,
     setSelectedDay: React.Dispatch<React.SetStateAction<number>>,
     setSelectedHour: React.Dispatch<React.SetStateAction<number>>,
@@ -122,6 +123,9 @@ const Header = (props: HeaderProps) => {
                         
                     }}
                 />
+            </div>
+            <div>
+                {props.selectedHour}
             </div>
         </header>
     )

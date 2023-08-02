@@ -24,7 +24,8 @@ const urls: {[name: string]: string} = {
 
 const colourBreaks = [
     '#f6eff7',
-    '#bdc9e1',
+    '#d0d1e6',
+    '#a6bddb',
     '#67a9cf',
     '#1c9099',
     '#016c59'
@@ -63,7 +64,7 @@ const calculateBreaks = (featureCollection: PointFC | PolyFC): PointFC | PolyFC 
 
             let breaks: {[brk: number]: string} = {}
             const step = (max - min) / 5;
-            for (let i = 0; i < 5; i++)
+            for (let i = 0; i < 6; i++)
             {
                 breaks[(min + (i * step))] = colourBreaks[i];
             }
@@ -73,13 +74,14 @@ const calculateBreaks = (featureCollection: PointFC | PolyFC): PointFC | PolyFC 
                 let fillColor = colourBreaks[0]
 
                 Object.keys(breaks).every((key, idx) => {
-                    const brk = Number(key)                    
-                    if (pctFull <= brk)                    
+                    const brk = Number(key)
+                    
+                    // Adding small value to account for rounding errors
+                    if (pctFull <= brk+0.0001)                    
                     {
                         fillColor = breaks[brk]
                         return false;
-                    } 
-
+                    }
                     return true;
                 })
 
@@ -113,7 +115,6 @@ const calculateGeometry = (featureCollection: PolyFC | PointFC) => {
             outFeatureCollection.features[index] = feature;
         }   
 
-        
     })
 
     return outFeatureCollection;
@@ -134,8 +135,6 @@ const DataLayer = (props: DataLayerProps) => {
         nhoods: null,
         arronds: null,
     });
-
-    const [geom, setGeom] = useState<LatLngExpression[][]>([[]]);
 
     useEffect(() => {
         fetchLayersData();
@@ -187,7 +186,7 @@ const DataLayer = (props: DataLayerProps) => {
                                     key={index}
                                     center={feature.properties.geom}
                                     radius={8}
-                                    fillColor={fillColor}
+                                    pathOptions={{fillColor:fillColor}}
                                     color="#000"
                                     weight={1}
                                     opacity={1}
@@ -208,21 +207,21 @@ const DataLayer = (props: DataLayerProps) => {
                     layer.features.map((feature, index) => {
                         if (feature.geometry.type === 'Polygon') {
                             const fillColor = feature.properties.values[props.dayOfWeek][props.hourOfDay].fillColor;
+                            const percentFull = feature.properties.values[props.dayOfWeek][props.hourOfDay].percentFull;
                             return (
                                 <Polygon
                                     key={index}
                                     positions={feature.properties.geom}
-                                    fillColor={fillColor}
+                                    pathOptions={{fillColor:fillColor}}
                                     color="#000"
                                     weight={1}
                                     opacity={1}
                                     fillOpacity={0.8}               
                                 >
                                     <Popup maxWidth={1000}>
-                                        <p>{index}</p>
+                                        {percentFull}
                                         <FeaturePopup feature={feature}/>                                
-                                    </Popup>
-                                    <Tooltip direction="center" offset={[0, 0]} opacity={1} permanent>{fillColor}</Tooltip>
+                                    </Popup>                                        
                                 </Polygon>
                             )
                         }

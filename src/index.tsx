@@ -23,6 +23,7 @@ const Content = () => {
         >
             <Header 
                 selectedLayer={selectedLayer} 
+                selectedHour={selectedHour}
                 setSelectedLayer={setSelectedLayer} 
                 setSelectedDay={setSelectedDay}
                 setSelectedHour={setSelectedHour}
