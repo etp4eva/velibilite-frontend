@@ -12,7 +12,8 @@ const Content = () => {
     const [ selectedLayer, setSelectedLayer ] = useState('stations');
     const [ selectedDay, setSelectedDay ] = useState(0);
     const [ selectedHour, setSelectedHour ] = useState(0);
-    
+    const [ isLoading, setLoading ] = useState(true);
+    //console.log(isLoading)
     return (
         <div
             style={{
@@ -25,7 +26,18 @@ const Content = () => {
                 setSelectedLayer={setSelectedLayer} 
                 setSelectedDay={setSelectedDay}
                 setSelectedHour={setSelectedHour}
+                setLoading={setLoading}
             />
+            {false /*isLoading*/ ? <div
+                style={{
+                    position:'absolute',
+                    width: '100%',
+                    height: '95vh',
+                    backgroundColor: 'white',
+                    zIndex: 100,
+                    opacity: 0.5,
+                }}
+            ></div> : null }
             <MapContainer 
                 center={[48.8570, 2.3502]}
                 zoom={12}     
@@ -34,6 +46,7 @@ const Content = () => {
                     width: '100%',
                     height: '95vh',
                     outline: 'none',
+                    zIndex:'1',
                 }}
             >
                 <TileLayer
@@ -44,6 +57,8 @@ const Content = () => {
                     selectedLayer={selectedLayer} 
                     dayOfWeek={selectedDay}
                     hourOfDay={selectedHour}
+                    isLoading={isLoading}
+                    setLoading={setLoading}
                 />
 
             </MapContainer>

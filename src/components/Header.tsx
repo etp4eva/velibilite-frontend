@@ -5,6 +5,7 @@ type HeaderProps = {
     setSelectedLayer: React.Dispatch<React.SetStateAction<string>>,
     setSelectedDay: React.Dispatch<React.SetStateAction<number>>,
     setSelectedHour: React.Dispatch<React.SetStateAction<number>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 const Header = (props: HeaderProps) => {
@@ -82,10 +83,11 @@ const Header = (props: HeaderProps) => {
                     style={{
                         visibility: props.selectedLayer != 'stations' ? 'visible' : 'hidden'
                     }}
-                    onChange={ (event) => {
+                    onChange={ (event) => {                        
                         const value = event.currentTarget.value;
                         props.setSelectedDay(Number(value));
                     }}
+                    
                 >
                     <option value="7">All days</option>
                     <option value="0">Monday</option>
@@ -107,11 +109,17 @@ const Header = (props: HeaderProps) => {
                     min='0'
                     max='23'
                     style={{
-                        visibility: props.selectedLayer != 'stations' ? 'visible' : 'hidden'
+                        
                     }}
+
                     onChange={ (event) => {
-                        const value = event.currentTarget.value;
-                        props.setSelectedHour(Number(value));
+                        //props.setLoading(true);
+                        const value = event.currentTarget.value;                        
+                        props.setSelectedHour(Number(value));                    
+                    }}
+
+                    onSelect={ (event) => {                        
+                        
                     }}
                 />
             </div>
