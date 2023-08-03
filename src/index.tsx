@@ -7,13 +7,29 @@ import {createRoot} from "react-dom/client";
 import { MapContainer } from 'react-leaflet';
 import DataLayer from './components/DataLayer';
 import Header from './components/Header';
+import loadingImg from './images/bike.gif'
+
+const loadingDiv = (
+<div
+    style={{
+        position:'absolute',
+        width: '100%',
+        height: '95vh',
+        backgroundColor: 'white',
+        zIndex: 100,
+        opacity: 0.5,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }}><img src={loadingImg} /></div>
+)
 
 const Content = () => {
     const [ selectedLayer, setSelectedLayer ] = useState('stations');
     const [ selectedDay, setSelectedDay ] = useState(0);
     const [ selectedHour, setSelectedHour ] = useState(0);
     const [ isLoading, setLoading ] = useState(true);
-    //console.log(isLoading)
+    
     return (
         <div
             style={{
@@ -29,16 +45,7 @@ const Content = () => {
                 setSelectedHour={setSelectedHour}
                 setLoading={setLoading}
             />
-            {false /*isLoading*/ ? <div
-                style={{
-                    position:'absolute',
-                    width: '100%',
-                    height: '95vh',
-                    backgroundColor: 'white',
-                    zIndex: 100,
-                    opacity: 0.5,
-                }}
-            ></div> : null }
+            {isLoading ? loadingDiv : null }
             <MapContainer 
                 center={[48.8570, 2.3502]}
                 zoom={12}     

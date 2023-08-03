@@ -1,9 +1,7 @@
 import L, { LatLngExpression } from "leaflet";
 import React, { useEffect, useState } from "react";
-import { Circle, CircleMarker, Marker, Polygon, Popup, Tooltip } from "react-leaflet";
+import { CircleMarker, Polygon, Popup, Tooltip } from "react-leaflet";
 import FeaturePopup from "./FeaturePopup";
-import { GeoJSON } from "geojson";
-import { fill } from "lodash";
 
 type DataLayerProps = {
     selectedLayer: string,
@@ -147,7 +145,8 @@ const DataLayer = (props: DataLayerProps) => {
             lyrs[key] = await fetchLayerData(key);            
         }
 
-        setLayers(lyrs);
+        setLayers({...lyrs});
+        props.setLoading(false);
     }
 
     const fetchLayerData = async (layer: string) => {
