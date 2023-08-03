@@ -40,10 +40,11 @@ const Content = () => {
             <Header 
                 selectedLayer={selectedLayer} 
                 selectedHour={selectedHour}
+                isLoading={isLoading}
                 setSelectedLayer={setSelectedLayer} 
                 setSelectedDay={setSelectedDay}
                 setSelectedHour={setSelectedHour}
-                setLoading={setLoading}
+                setLoading={setLoading}                
             />
             {isLoading ? loadingDiv : null }
             <MapContainer 
