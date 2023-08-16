@@ -1,4 +1,5 @@
 import React from 'react'
+import { Layer, BikeType, DayOfWeek, enumKeys } from '../types/types'
 
 type HeaderProps = {
     selectedLayer: string,
@@ -65,10 +66,12 @@ const Header = (props: HeaderProps) => {
                         }}
                         disabled={props.isLoading}
                     >
-                        <option value="stations">Stations</option>
-                        <option value="communes">Communes</option>
-                        <option value="nhoods">Neighbourhoods</option>                                     
-                        <option value="arronds">Arrondissements</option>
+                        { 
+                            enumKeys(Layer).map(key => {
+                                const value = Layer[key];
+                                return (<option value={value}>{key}</option>)
+                            }) 
+                        }    
                     </select>
                 </div>
                 <div
@@ -83,9 +86,12 @@ const Header = (props: HeaderProps) => {
                         id="bike-type-select"
                         disabled={props.isLoading || props.selectedLayer == 'stations'}
                     >
-                        <option value="all">All bikes</option>
-                        <option value="green">Green bikes</option>
-                        <option value="blue">Blue bikes</option>
+                        {
+                            enumKeys(BikeType).map(key => {
+                                const value = BikeType[key];
+                                return (<option value={value}>{key} bikes</option>)
+                            }) 
+                        }
                     </select>
                 </div>
                 <div
@@ -102,17 +108,19 @@ const Header = (props: HeaderProps) => {
                             const value = event.currentTarget.value;
                             props.setSelectedDay(Number(value));
                         }}
-                        disabled={props.isLoading || props.selectedLayer == 'stations'}
-                        
+                        disabled={ props.isLoading || props.selectedLayer == 'stations' }
+                        defaultValue={ DayOfWeek.Monday }
                     >
-                        <option value="7">All days</option>
-                        <option value="0">Monday</option>
-                        <option value="1">Tuesday</option>
-                        <option value="2">Wednesday</option>
-                        <option value="3">Thursday</option>
-                        <option value="4">Friday</option>
-                        <option value="5">Saturday</option>
-                        <option value="6">Sunday</option>
+                        {
+                            enumKeys(DayOfWeek).map(key => {
+                                const value = DayOfWeek[key];
+                                /*
+                                if (key == 'All') {
+                                    return (<option value={value}>{key} Days</option>)
+                                }*/
+                                return (<option value={value}>{key}</option>)
+                            }) 
+                        }
                     </select>
                 </div>
                 <div
@@ -149,7 +157,7 @@ const Header = (props: HeaderProps) => {
                         paddingRight: 5,
                     }}
                 >
-                    {props.selectedHour.toString().padStart(2, '0')}h
+                    { props.selectedHour.toString().padStart(2, '0') }h
                 </div>
             </div>
         </header>

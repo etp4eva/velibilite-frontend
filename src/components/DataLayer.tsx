@@ -2,10 +2,12 @@ import L, { LatLngExpression } from "leaflet";
 import React, { useEffect, useState } from "react";
 import { CircleMarker, Polygon, Popup, Tooltip } from "react-leaflet";
 import FeaturePopup from "./FeaturePopup";
+import { Layer, DayOfWeek, enumKeys } from '../types/types';
+import { toNumber } from "lodash";
 
 type DataLayerProps = {
-    selectedLayer: string,
-    dayOfWeek: number,
+    selectedLayer: Layer,
+    dayOfWeek: DayOfWeek,
     hourOfDay: number,
     isLoading: boolean,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -13,11 +15,11 @@ type DataLayerProps = {
 
 const base_url = 'https://ericwebsite.info/velib/data/'
 
-const urls: {[name: string]: string} = {
-    'stations': base_url + 'stations.geojson',
-    'communes': base_url + 'commune.geojson',
-    'nhoods': base_url + 'nhood.geojson',
-    'arronds': base_url + 'arrond.geojson',
+const urls: {[name in Layer]: string} = {
+    [Layer.Stations]:        base_url + 'stations.geojson',
+    [Layer.Communes]:        base_url + 'commune.geojson',
+    [Layer.Neighbourhoods]:  base_url + 'nhood.geojson',
+    [Layer.Arrondissements]: base_url + 'arrond.geojson',
 }
 
 const colourBreaks = [
@@ -33,11 +35,7 @@ type PointFC = GeoJSON.FeatureCollection<GeoJSON.Point>;
 type PolyFC = GeoJSON.FeatureCollection<GeoJSON.Polygon>;
 
 type FetchedData = {
-    [key: string]: PointFC | PolyFC,
-    stations : PointFC,
-    communes : PolyFC,
-    nhoods   : PolyFC,
-    arronds  : PolyFC,
+    [key in Layer] : PointFC | PolyFC;
 }
 
 const calculateBreaks = (featureCollection: PointFC | PolyFC): PointFC | PolyFC => {
@@ -49,7 +47,7 @@ const calculateBreaks = (featureCollection: PointFC | PolyFC): PointFC | PolyFC 
             let min = Number.POSITIVE_INFINITY
             
             outFeatureCollection.features.forEach((feature, index) => {
-                // TODO: Less naive break algorithm
+                // TODO: Less naive break algorithmd
                 const vals = feature.properties.values[dayOfWeek][hourOfDay]
                 const pct = (vals.g + vals.b) / feature.properties.capacity;
                 feature.properties.values[dayOfWeek][hourOfDay].percentFull = pct;
@@ -141,15 +139,15 @@ const DataLayer = (props: DataLayerProps) => {
     const fetchLayersData = async () => {
         let lyrs: FetchedData = layers;
 
-        for (const key of Object.keys(urls)) {
-            lyrs[key] = await fetchLayerData(key);            
+        for (const key of enumKeys(Layer)) {
+            lyrs[Layer[key]] = await fetchLayerData(Layer[key]);
         }
 
         setLayers({...lyrs});
         props.setLoading(false);
     }
 
-    const fetchLayerData = async (layer: string) => {
+    const fetchLayerData = async (layer: Layer) => {
         const response = await (
             await fetch(
                 urls[layer]
@@ -172,8 +170,7 @@ const DataLayer = (props: DataLayerProps) => {
     // https://stackoverflow.com/questions/67460092/need-proper-way-to-render-jsx-component-inside-leaflet-popup-when-using-geojson
 
     if (isReady()) {   
-        const layer = layers[props.selectedLayer];      
-
+        const layer = layers[props.selectedLayer];    
         if (props.selectedLayer == 'stations') {
             return (
                 <>{

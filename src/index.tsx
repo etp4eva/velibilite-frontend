@@ -8,6 +8,7 @@ import { MapContainer } from 'react-leaflet';
 import DataLayer from './components/DataLayer';
 import Header from './components/Header';
 import loadingImg from './images/bike.gif'
+import { DayOfWeek, Layer } from './types/types'
 
 const loadingDiv = (
 <div
@@ -25,10 +26,10 @@ const loadingDiv = (
 )
 
 const Content = () => {
-    const [ selectedLayer, setSelectedLayer ] = useState('stations');
-    const [ selectedDay, setSelectedDay ] = useState(0);
-    const [ selectedHour, setSelectedHour ] = useState(0);
-    const [ isLoading, setLoading ] = useState(true);
+    const [ selectedLayer, setSelectedLayer ] = useState<Layer>(Layer.Stations);    
+    const [ selectedDay,   setSelectedDay   ] = useState<DayOfWeek>(DayOfWeek.Monday);
+    const [ selectedHour,  setSelectedHour  ] = useState(0);
+    const [ isLoading,     setLoading       ] = useState(true);
     
     return (
         <div
@@ -46,7 +47,7 @@ const Content = () => {
                 setSelectedHour={setSelectedHour}
                 setLoading={setLoading}                
             />
-            {isLoading ? loadingDiv : null }
+            { isLoading ? loadingDiv : null }
             <MapContainer 
                 center={[48.8570, 2.3502]}
                 zoom={12}     
