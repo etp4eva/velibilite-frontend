@@ -2,13 +2,15 @@ import * as _ from 'lodash';
 import "leaflet/dist/leaflet.css";
 import { TileLayer } from "react-leaflet";
 import "./styles.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {createRoot} from "react-dom/client";
 import { MapContainer } from 'react-leaflet';
 import DataLayer from './components/DataLayer';
 import Header from './components/Header';
 import loadingImg from './images/bike.gif'
 import { DayOfWeek, Layer } from './types/types'
+import TimeSelector from './components/TimeSelector';
+import WebFont from 'webfontloader';
 
 const loadingDiv = (
 <div
@@ -30,6 +32,14 @@ const Content = () => {
     const [ selectedDay,   setSelectedDay   ] = useState<DayOfWeek>(DayOfWeek.Monday);
     const [ selectedHour,  setSelectedHour  ] = useState(0);
     const [ isLoading,     setLoading       ] = useState(true);
+
+    useEffect(() => {
+        WebFont.load({
+            google: {
+                families: ['Tajawal', 'Azeret Mono']
+            }
+        })
+    }, [])
     
     return (
         <div
@@ -48,6 +58,12 @@ const Content = () => {
                 setLoading={setLoading}                
             />
             { isLoading ? loadingDiv : null }
+            <TimeSelector 
+                setLoading={setLoading}
+                setSelectedHour={setSelectedHour}
+                isLoading={isLoading}
+                selectedHour={selectedHour}
+            />
             <MapContainer 
                 center={[48.8570, 2.3502]}
                 zoom={12}     

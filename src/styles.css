@@ -1,5 +1,6 @@
 body {
     position: relative;
+    font-family: 'Tajawal';
 }
 
 html, body, #map {
@@ -11,4 +12,49 @@ html, body, #map {
 
 #map {
     z-index: 0;
+}
+
+.time-selector-div {
+    position: absolute;
+    bottom: 30px;    
+    width: 80%;
+    height: 40px;
+    background-color: white;
+    z-index: 99;
+    opacity: 0.5;
+    animation: fadeOut 500ms;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 25px;
+    padding: 0 10px;
+}
+
+.time-selector-div input {
+    width: 100%
+}
+
+.time-selector-time {
+    width: 15px;
+    margin-right: 20px;
+    margin-left: 10px;
+
+    font-family: 'Azeret Mono'
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0.5; }
+    100% { opacity: 0.9; }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 0.9; }
+    100% { opacity: 0.5; }
+}
+
+.time-selector-div:hover {
+    animation: fadeIn 500ms;
+    opacity: 0.9;
 }

@@ -123,42 +123,6 @@ const Header = (props: HeaderProps) => {
                         }
                     </select>
                 </div>
-                <div
-                    style={{
-                        flexGrow: 3,
-                        paddingLeft: 5,
-                        paddingRight: 5,
-                    }}
-                >
-                    <input 
-                        type='range'
-                        min='0'
-                        max='23'
-                        defaultValue='0'
-                        style={{
-                            
-                        }}
-
-                        onChange={ (event) => {
-                            //props.setLoading(true);
-                            const value = event.currentTarget.value;                        
-                            props.setSelectedHour(Number(value));                    
-                        }}
-
-                        onSelect={ (event) => {                        
-                            
-                        }}
-                        disabled={props.isLoading}
-                    />
-                </div>
-                <div
-                    style={{
-                        paddingLeft: 5,
-                        paddingRight: 5,
-                    }}
-                >
-                    { props.selectedHour.toString().padStart(2, '0') }h
-                </div>
             </div>
         </header>
     )
