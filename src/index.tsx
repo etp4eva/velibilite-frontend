@@ -41,13 +41,20 @@ const Content = () => {
         })
     }, [])
     
+
+    
+
+
     return (
         <div
             style={{
                 width: '100%',
                 height: '100%',
             }}
-        >
+        >            
+            <div className='title'>
+                Vélibilité
+            </div>
             <Header 
                 selectedLayer={selectedLayer} 
                 selectedHour={selectedHour}
@@ -70,7 +77,7 @@ const Content = () => {
                 preferCanvas={true}   
                 style={{
                     width: '100%',
-                    height: '95vh',
+                    height: '100vh',
                     outline: 'none',
                     zIndex:'1',
                 }}
