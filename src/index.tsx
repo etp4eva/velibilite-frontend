@@ -41,10 +41,6 @@ const Content = () => {
         })
     }, [])
     
-
-    
-
-
     return (
         <div
             style={{

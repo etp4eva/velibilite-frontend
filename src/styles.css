@@ -44,27 +44,61 @@ html, body, #map {
 }
 
 header {
-    position: absolute;
-    z-index: 98;
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    
+    position: absolute;
+    z-index: 98;  
+
+    transform: translateX(-50%);
+    left: 50%;
+    overflow: hidden;
+}
+
+.header-open {
+    top: 10px;
+    animation: header-slide-down 200ms;
+}
+
+.header-closed {
+    top: -40px;
+    animation: header-slide-up 200ms;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: row;    
+    align-items: center;  
 
     height: 40px;
 
     padding: 0px 10px;
-    top: 10px;
-    left: 50%;
+
     background-color: white;
 
-    opacity: 0.5;
-    animation: fadeOut 500ms;
-    
-    transform: translateX(-50%);
     border-radius: 25px;
 }
 
-header:hover {
+.drawer-button {
+    border: none;
+    background-color: rgba(255,255,255,0.0);
+    font-size: 25px;
+    font-weight: bold;
+    opacity: 0.5;
+    animation: fadeOut 500ms;
+}
+
+@keyframes header-slide-up {
+    0% { top: 10px; }
+    100% { top: -40px; }
+}
+
+@keyframes header-slide-down {
+    0% { top: -40px; }
+    100% { top: 10px; }
+}
+
+.drawer-button:hover {
     animation: fadeIn 500ms;
     opacity: 0.9;
 }
