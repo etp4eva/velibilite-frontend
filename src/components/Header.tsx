@@ -92,7 +92,7 @@ const Header = (props: HeaderProps) => {
                 </div>
             </div>
             <button 
-                className='drawer-button drawer-up'
+                className={`drawer-button ${isOpen ? 'drawer-up' : 'drawer-down'}`.trim()}
                 onClick={() => {
                     if (isOpen) setOpen(false);
                     else setOpen(true);
