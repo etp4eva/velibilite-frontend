@@ -215,7 +215,6 @@ const DataLayer = (props: DataLayerProps) => {
                                     fillOpacity={0.8}               
                                 >
                                     <Popup maxWidth={1000}>
-                                        {percentFull}
                                         <FeaturePopup feature={feature}/>                                
                                     </Popup>                                        
                                 </Polygon>

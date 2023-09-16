@@ -80,14 +80,14 @@ const TimeFrequencyChart = ({feature, day_of_week}: TimeFrequencyChartProps) => 
         labels: Array.from({length:24},(v,k)=>k+1),
         datasets: [
             {
-                label: 'Green bikes',
+                label: 'Mécanique',
                 data: green,
-                backgroundColor: 'rgba(0, 255, 0, 0.5)',
+                backgroundColor: '#016c59',
             },
             {
-                label: 'Blue bikes',
+                label: 'Électriques',
                 data: blue,
-                backgroundColor: 'rgba(0, 0, 255, 0.5)',
+                backgroundColor: '#67a9cf',
             },
         ],
     }
@@ -96,34 +96,97 @@ const TimeFrequencyChart = ({feature, day_of_week}: TimeFrequencyChartProps) => 
 }
 
 let days_of_week = [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'All'
+    'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche', 'Tous'
 ]
+
+const formatDataRow = (title: string, data: string): React.JSX.Element => {
+    return (
+        <div className="data-line">
+            <p className="data-label">
+                {title}
+            </p>
+            <p className="data-value">
+                {data}
+            </p>
+        </div>
+    )
+}
+
+const getGeomIDJSX = (ftProps: {[name: string]: any}): React.JSX.Element => {
+
+    if (ftProps.station_id) {
+        return formatDataRow('Matricule', ftProps.station_id)
+    }
+
+    if (ftProps.nomcom) {
+        return formatDataRow('Commune', ftProps.nomcom)
+    }
+
+    if (ftProps.l_qu) {
+        return formatDataRow('Quartier', ftProps.l_qu)
+    }
+
+    if (ftProps.l_ar) {
+        return formatDataRow('Arrondissement', ftProps.l_ar)
+    }
+
+    return null;
+}
 
 const FeaturePopup = ({feature}: FeaturePopupProps) => {    
     const [day_of_week, setDayOfWeek] = useState(0);
 
+    let geom_id_jsx = getGeomIDJSX(feature.properties);
+
     return (
-      <div style={{ fontSize: "12px", color: "black" }}>
-        <p><b>Station ID:</b> {feature.properties.station_id}</p>
-        <p style={{textAlign:'center'}}>
-            <button onClick={() => {
-                if (day_of_week - 1 < 0) {
-                    setDayOfWeek(7)
-                } else {
-                    setDayOfWeek(day_of_week - 1)
-                }
-                console.log(day_of_week)
-            }}>⬅️</button>
-            { days_of_week[day_of_week] } 
-            <button onClick={() => {
-                if (day_of_week + 1 > 7) {
-                    setDayOfWeek(0)
-                } else {
-                    setDayOfWeek(day_of_week + 1)
-                }
-            }}>➡️</button>            
+      <div style={{ fontSize: "12px", color: "black" }}>        
+        <p style={{
+            display:'flex',
+            textAlign:'center',
+            justifyContent: 'center',
+            margin: '0'
+        }}>
+            <button 
+                onClick={() => {
+                    if (day_of_week - 1 < 0) {
+                        setDayOfWeek(7)
+                    } else {
+                        setDayOfWeek(day_of_week - 1)
+                    }
+                }}
+
+                className="popup-button"
+            >
+                <p>⬅️</p>
+            </button>
+            <p style={{
+                display: 'flex',
+                width: '33%',
+                margin: 0,
+                padding: 0,
+                fontSize: 16,
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+                { days_of_week[day_of_week] }
+            </p>
+            <button 
+                onClick={() => {
+                    if (day_of_week + 1 > 7) {
+                        setDayOfWeek(0)
+                    } else {
+                        setDayOfWeek(day_of_week + 1)
+                    }
+                }}
+
+                className="popup-button"
+            >
+                <p>➡️</p>
+            </button>
         </p>
         <TimeFrequencyChart feature={feature} day_of_week={day_of_week} />
+        {geom_id_jsx}
+        {formatDataRow('Capacité', feature.properties.capacity)}
       </div>
     );
 };
