@@ -8,7 +8,7 @@ import { MapContainer } from 'react-leaflet';
 import DataLayer from './components/DataLayer';
 import Header from './components/Header';
 import loadingImg from './images/bike.gif'
-import { DayOfWeek, Layer } from './types/types'
+import { DayOfWeek, Layer, Legend, LegendCollection } from './types/types'
 import TimeSelector from './components/TimeSelector';
 import WebFont from 'webfontloader';
 
@@ -32,6 +32,8 @@ const Content = () => {
     const [ selectedDay,   setSelectedDay   ] = useState<DayOfWeek>(DayOfWeek.Monday);
     const [ selectedHour,  setSelectedHour  ] = useState(0);
     const [ isLoading,     setLoading       ] = useState(true);
+    
+    const [ legends,       setLegends       ] = useState<LegendCollection>();
 
     useEffect(() => {
         WebFont.load({
@@ -88,6 +90,7 @@ const Content = () => {
                     hourOfDay={selectedHour}
                     isLoading={isLoading}
                     setLoading={setLoading}
+                    setLegends={setLegends}
                 />
 
             </MapContainer>

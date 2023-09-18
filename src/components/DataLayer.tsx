@@ -2,7 +2,7 @@ import L, { LatLngExpression } from "leaflet";
 import React, { useEffect, useState } from "react";
 import { CircleMarker, LayersControl, Polygon, Popup, Tooltip } from "react-leaflet";
 import FeaturePopup from "./FeaturePopup";
-import { Layer, DayOfWeek, enumKeys, roundTo, avgArray, medArray } from '../types/types';
+import { Legend, Layer, DayOfWeek, enumKeys, roundTo, avgArray, medArray, LegendCollection } from '../types/types';
 import { Feature } from "geojson";
 
 type DataLayerProps = {
@@ -11,6 +11,7 @@ type DataLayerProps = {
     hourOfDay: number,
     isLoading: boolean,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setLegends: React.Dispatch<React.SetStateAction<LegendCollection>>,
 }
 
 const base_url = 'https://ericwebsite.info/velib/data/'
@@ -49,13 +50,6 @@ type LayerStats = {
     maxHist: {[key: number]: number},
     maxAvg: number,
     maxMed: number,
-}
-
-type Legend = {
-    [value: number]: {
-        fillColor: string,
-        label: string,
-    }
 }
 
 const calculateLayerStats = (layer: Layer, featureCollection: FeatureCollection): LayerStats => {
@@ -245,12 +239,20 @@ const DataLayer = (props: DataLayerProps) => {
 
     const fetchLayersData = async () => {
         let lyrs: FetchedData = layers;
+        let legends: LegendCollection = {
+            stations: null,
+            communes: null,
+            nhoods: null,
+            arronds: null,
+        };
 
         for (const key of enumKeys(Layer)) {
             lyrs[Layer[key]] = await fetchLayerData(Layer[key]);
+            legends[Layer[key]] = lyrs[Layer[key]].legend;
         }
-
+        
         setLayers({...lyrs});
+        props.setLegends(legends);
         props.setLoading(false);
     }
 
