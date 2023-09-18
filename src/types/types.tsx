@@ -23,7 +23,7 @@ export enum DayOfWeek {
 }
 
 export type Legend = {
-    [value: number]: {
+    [value: string]: {
         fillColor: string,
         label: string,
     }

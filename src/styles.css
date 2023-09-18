@@ -166,7 +166,7 @@ footer {
 }
 
 .drawer-down {
-    transform: rotate(0deg);
+    transform: rotate(0deg);    
 }
 
 .drawer-up {
@@ -218,4 +218,87 @@ footer {
 .feature-data p {
     margin: 0;
     padding: 0;
+}
+
+.legend {    
+    position: absolute;
+    z-index: 98;
+    
+    transform: translateY(-50%);
+    top: 50%;
+
+    background-color: white;
+
+    border-radius: 25px;
+    padding: 0 10px;
+
+    font-family: 'Azeret Mono';    
+
+    padding: 10px 15px;
+}
+
+.legend-open {
+    right: 15px;
+    animation: legend-slide-open 200ms;
+}
+
+.legend-closed {
+    right: -180px;
+    animation: legend-slide-closed 200ms;
+}
+
+.legend-button-open {
+    transform: rotate(270deg);
+}
+
+.legend-button-closed {
+    transform: rotate(90deg);
+}
+
+@keyframes legend-slide-open {
+    0% { right: -180px; }
+    100% { right: 15px; }
+}
+
+@keyframes legend-slide-closed {
+    0% { right: 15px; }
+    100% { right: -180px; }
+}
+
+.legend-button:hover {
+    animation: fadeIn 500ms;
+    opacity: 0.9;
+}
+
+.legend-button {
+    border: none;
+    background-color: rgba(255,255,255,0.0);
+    font-size: 25px;
+    font-weight: bold;
+    opacity: 0.5;
+    animation: fadeOut 500ms;
+
+    position:absolute;
+    top: 40%;
+    right: 185px;
+}
+
+.legend caption {
+    font-size: 10pt;
+    text-align: right;
+    padding-bottom: 5px;
+}
+
+.legend-label {
+    text-align: right;
+    font-size: 10pt;
+    padding-right: 10px;
+}
+
+.legend-colour-box {
+    width: 15px;
+    height: 15px;
+    border-style: solid;
+    border-color: #000;
+    border-width: 1px;
 }

@@ -1,15 +1,17 @@
 ☐ Proper breaks
-☐ Legend
-    ✔ Legend calculation @done(23-09-18 11:24)
-    ☐ Legend display
-        ✔ Refactor calculateBreaks @done(23-09-18 13:22)
-        ✔ Include legend in layerFC @done(23-09-18 13:22)
-        - Legend component
 ☐ French translation
 ☐ Make bike type switch work (?)
 ☐ Weekend and weekday grouping in day drop down
-✔ Popup colour + design @done(23-09-16 11:26)
 ☐ Remove stations where capacity == 0 in backend
+☐ SCSS refactor
 ☐ Fix console warnings
 ☐ Favicon
 ☐ Deploy
+Archive:
+  ✔ Legend @done(23-09-18 15:29)
+  ✔ Legend calculation @done(23-09-18 11:24)
+  ✔ Legend display @done(23-09-18 15:29)
+  ✔ Refactor calculateBreaks @done(23-09-18 13:22)
+  ✔ Include legend in layerFC @done(23-09-18 13:22)
+  ✔ Legend component @done(23-09-18 15:26)
+  ✔ Popup colour + design @done(23-09-16 11:26)

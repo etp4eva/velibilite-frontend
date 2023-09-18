@@ -129,12 +129,12 @@ const calculateLegend = (layerStats: LayerStats): Legend => {
     {
         let nextValue: number = (min + (i * step));
 
-        let labelStr = `${roundTo(lastValue * 100.0, 1)}% - ${roundTo(nextValue * 100.0, 1)}%`;
+        let labelStr = `${roundTo(lastValue * 100.0, 1).toFixed(1)}% - ${roundTo(nextValue * 100.0, 1).toFixed(1)}%`;
 
         if (i == colourBreaks.length) {
-            labelStr = `>= ${roundTo(lastValue * 100.0, 1)}%`;
+            labelStr = `>= ${roundTo(lastValue * 100.0, 1).toFixed(1)}%`;
         } else if (i == 1) {
-            labelStr = `< ${roundTo(nextValue * 100.0, 1)}%`;
+            labelStr = `< ${roundTo(nextValue * 100.0, 1).toFixed(1)}%`;
         }
         
         legend[nextValue] = {

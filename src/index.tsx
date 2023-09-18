@@ -11,6 +11,7 @@ import loadingImg from './images/bike.gif'
 import { DayOfWeek, Layer, Legend, LegendCollection } from './types/types'
 import TimeSelector from './components/TimeSelector';
 import WebFont from 'webfontloader';
+import LegendComponent from './components/LegendComponent';
 
 const loadingDiv = (
 <div
@@ -33,7 +34,12 @@ const Content = () => {
     const [ selectedHour,  setSelectedHour  ] = useState(0);
     const [ isLoading,     setLoading       ] = useState(true);
     
-    const [ legends,       setLegends       ] = useState<LegendCollection>();
+    const [ legends,       setLegends       ] = useState<LegendCollection>({
+        [Layer.Stations]: null,
+        [Layer.Communes]: null,
+        [Layer.Neighbourhoods]: null,
+        [Layer.Arrondissements]: null,
+    });
 
     useEffect(() => {
         WebFont.load({
@@ -62,6 +68,7 @@ const Content = () => {
                 setSelectedHour={setSelectedHour}
                 setLoading={setLoading}                
             />
+            <LegendComponent legend={legends[selectedLayer]}/>
             { isLoading ? loadingDiv : null }
             <TimeSelector 
                 setLoading={setLoading}
