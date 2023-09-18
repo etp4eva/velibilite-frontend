@@ -1,9 +1,9 @@
 import L, { LatLngExpression } from "leaflet";
 import React, { useEffect, useState } from "react";
-import { CircleMarker, Polygon, Popup, Tooltip } from "react-leaflet";
+import { CircleMarker, LayersControl, Polygon, Popup, Tooltip } from "react-leaflet";
 import FeaturePopup from "./FeaturePopup";
-import { Layer, DayOfWeek, enumKeys } from '../types/types';
-import { toNumber } from "lodash";
+import { Layer, DayOfWeek, enumKeys, roundTo, avgArray, medArray } from '../types/types';
+import { Feature } from "geojson";
 
 type DataLayerProps = {
     selectedLayer: Layer,
@@ -33,64 +33,169 @@ const colourBreaks = [
 
 type PointFC = GeoJSON.FeatureCollection<GeoJSON.Point>;
 type PolyFC = GeoJSON.FeatureCollection<GeoJSON.Polygon>;
+type FeatureCollection = (PointFC | PolyFC) & { legend?: Legend };
 
 type FetchedData = {
-    [key in Layer] : PointFC | PolyFC;
+    [key in Layer] : FeatureCollection;
 }
 
-const calculateBreaks = (featureCollection: PointFC | PolyFC): PointFC | PolyFC => {
-    let outFeatureCollection = featureCollection;
+type LayerStats = {
+    layer: Layer,
+    mins: number[],
+    minHist: {[key: number]: number},
+    minAvg: number,
+    minMed: number,
+    maxes: number[],
+    maxHist: {[key: number]: number},
+    maxAvg: number,
+    maxMed: number,
+}
+
+type Legend = {
+    [value: number]: {
+        fillColor: string,
+        label: string,
+    }
+}
+
+const calculateLayerStats = (layer: Layer, featureCollection: FeatureCollection): LayerStats => {
+
+    let minsMaxes: LayerStats = {
+        layer: layer,
+        mins: [],
+        minHist: {},
+        minAvg: 0,
+        minMed: 0,
+        maxes: [],
+        maxHist: {},
+        maxAvg: 0,
+        maxMed: 0,
+    }
 
     for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
         for (let hourOfDay = 0; hourOfDay < 24; hourOfDay++) {
             let max = Number.NEGATIVE_INFINITY
             let min = Number.POSITIVE_INFINITY
             
-            outFeatureCollection.features.forEach((feature, index) => {
+            featureCollection.features.forEach((feature, index) => {
                 // TODO: Less naive break algorithmd
                 const vals = feature.properties.values[dayOfWeek][hourOfDay]
                 const pct = (vals.g + vals.b) / feature.properties.capacity;
                 feature.properties.values[dayOfWeek][hourOfDay].percentFull = pct;
 
+                if (pct >= 1.0 || pct <= 0.0) {
+                    return;
+                }
+
                 if (pct > max) max = pct;
                 if (pct < min) min = pct;
-
-                outFeatureCollection.features[index] = feature;
             })
 
-            let breaks: {[brk: number]: string} = {}
-            const step = (max - min) / 5;
-            for (let i = 0; i < 6; i++)
+            minsMaxes.mins.push(min);
+            minsMaxes.maxes.push(max);
+            
+            const minRound: number = roundTo(min, 2);
+            const maxRound: number = roundTo(max, 2);
+
+            if (minRound in minsMaxes.minHist)
             {
-                breaks[(min + (i * step))] = colourBreaks[i];
+                minsMaxes.minHist[minRound] += 1;
+            } else {
+                minsMaxes.minHist[minRound] = 1;
             }
 
-            outFeatureCollection.features.forEach((feature, index) => {
-                const pctFull = feature.properties.values[dayOfWeek][hourOfDay].percentFull;
-                let fillColor = colourBreaks[0]
+            if (maxRound in minsMaxes.maxHist)
+            {
+                minsMaxes.maxHist[maxRound] += 1;
+            } else {
+                minsMaxes.maxHist[maxRound] = 1;
+            }
+        }
+    }
 
-                Object.keys(breaks).every((key, idx) => {
+    minsMaxes.maxAvg = avgArray(minsMaxes.maxes)
+    minsMaxes.minAvg = avgArray(minsMaxes.mins)
+
+    minsMaxes.maxMed = medArray(minsMaxes.maxes)
+    minsMaxes.minMed = medArray(minsMaxes.mins)
+
+    return minsMaxes;
+}
+
+const calculateLegend = (layerStats: LayerStats): Legend => {    
+    const min = layerStats.minMed;
+    const max = layerStats.maxMed;    
+    const step = (max - min) / (colourBreaks.length - 1);
+
+    let legend: Legend = {};
+
+    let lastValue = min   
+
+    for (let i = 1; i <= colourBreaks.length; i++)
+    {
+        let nextValue: number = (min + (i * step));
+
+        let labelStr = `${roundTo(lastValue * 100.0, 1)}% - ${roundTo(nextValue * 100.0, 1)}%`;
+
+        if (i == colourBreaks.length) {
+            labelStr = `>= ${roundTo(lastValue * 100.0, 1)}%`;
+        } else if (i == 1) {
+            labelStr = `< ${roundTo(nextValue * 100.0, 1)}%`;
+        }
+        
+        legend[nextValue] = {
+            fillColor: colourBreaks[i - 1],
+            label: labelStr,
+        };
+
+        lastValue = nextValue;
+    }
+
+    return legend;
+}
+
+const applyShading = (featureCollection: FeatureCollection): FeatureCollection => {
+    let outFeatureCollection = featureCollection;
+
+    outFeatureCollection.features.forEach((feature, index) => {
+        for (let dayOfWeek in feature.properties.values) {
+            for (let hourOfDay in feature.properties.values[dayOfWeek]) {
+                const pctFull = feature.properties.values[dayOfWeek][hourOfDay].percentFull;
+
+                let fillColor = colourBreaks[0]
+                let legend: Legend = outFeatureCollection.legend;                
+
+                Object.keys(legend).every((key, idx) => {
                     const brk = Number(key)
                     
                     // Adding small value to account for rounding errors
-                    if (pctFull <= brk+0.0001)                    
+                    if (pctFull < brk+0.001)                    
                     {
-                        fillColor = breaks[brk]
+                        fillColor = legend[brk].fillColor;
                         return false;
                     }
+
+                    const numKeys = Object.keys(legend).length;
+                    if (idx == numKeys - 1)
+                    {
+                        fillColor = legend[brk].fillColor;
+                        return false;
+                    }
+                    
                     return true;
                 })
 
                 feature.properties.values[dayOfWeek][hourOfDay].fillColor = fillColor;
                 outFeatureCollection.features[index] = feature;
-            })            
+            }
         }
-    }
+        
+    })            
     
     return(outFeatureCollection);
 }
 
-const calculateGeometry = (featureCollection: PolyFC | PointFC) => {  
+const calculateGeometry = (featureCollection: FeatureCollection) => {  
     let outFeatureCollection = featureCollection; 
 
     outFeatureCollection.features.forEach((feature, index) => {
@@ -116,9 +221,11 @@ const calculateGeometry = (featureCollection: PolyFC | PointFC) => {
     return outFeatureCollection;
 }
 
-const calculateValues = (featureCollection: PolyFC | PointFC) => {
+const calculateValues = (layer: Layer, featureCollection: FeatureCollection) => {    
     let newFC = featureCollection;
-    newFC = calculateBreaks(newFC);
+    const layerStats = calculateLayerStats(layer, newFC);
+    newFC.legend = calculateLegend(layerStats);
+    newFC = applyShading(newFC);
     newFC = calculateGeometry(newFC);
 
     return newFC;
@@ -153,11 +260,11 @@ const DataLayer = (props: DataLayerProps) => {
                 urls[layer]
             )
         )
-        const result = await response.json()
+        let result = await response.json()
     
         if (response.ok)
-        {
-            return calculateValues(result);
+        {            
+            return calculateValues(layer, result);
         } else {
             console.log(`Fetching data failed: ${layer}`)
         }
